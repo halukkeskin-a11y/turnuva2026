@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Halı Saha Puan Durumu</title>
+    <style>
+        /* Tablonun güzel görünmesi için basit bir tasarım */
+        table { width: 100%; border-collapse: collapse; font-family: sans-serif; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background-color: #28a745; color: white; }
+    </style>
+</head>
+<body>
+
+    <h2>Güncel Puan Durumu</h2>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Takım</th>
+                <th>O</th>
+                <th>G</th>
+                <th>B</th>
+                <th>M</th>
+                <th>Puan</th>
+            </tr>
+        </thead>
+        <tbody id="puan-tablosu">
+            <tr><td colspan="6">Veriler yükleniyor...</td></tr>
+        </tbody>
+    </table>
+
+    <script>
+        // 1. ADIM: Kopyaladığın uzun Google E-Tablolar CSV linkini buradaki tırnak içine yapıştır
+        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQtF4F7HaQQo0PiPsWvOE-IWnjJ2pQW52w37VcpKV_46N3texYA5_H1K0fKDvXActE29YmDbSdzkHhQ/pub?output=csv';
+
+        // 2. ADIM: Veriyi çek ve tabloya yazdır
+        fetch(csvUrl)
+            .then(response => response.text()) // Veriyi metin olarak al
+            .then(data => {
+                const satirlar = data.split('\n'); // Her satırı ayır
+                const tabloGovdesi = document.getElementById('puan-tablosu');
+                let htmlIcerigi = '';
+
+                // i=1 yapıyoruz çünkü 0. satırda E-Tablodaki başlıklar var, onları atlıyoruz
+                for (let i = 1; i < satirlar.length; i++) {
+                    if (satirlar[i].trim() === '') continue; // Boş satırları atla
+                    
+                    const sutunlar = satirlar[i].split(','); // Virgüllere göre sütunları ayır
+                    
+                    htmlIcerigi += '<tr>';
+                    sutunlar.forEach(sutun => {
+                        htmlIcerigi += `<td>${sutun}</td>`;
+                    });
+                    htmlIcerigi += '</tr>';
+                }
+                
+                // Hazırlanan satırları HTML içine yerleştir
+                tabloGovdesi.innerHTML = htmlIcerigi;
+            })
+            .catch(error => {
+                console.error('Veri çekilirken hata oluştu:', error);
+                document.getElementById('puan-tablosu').innerHTML = '<tr><td colspan="6">Veri yüklenemedi.</td></tr>';
+            });
+    </script>
+
+</body>
+</html>
